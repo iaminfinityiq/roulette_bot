@@ -27,3 +27,30 @@ How to play:
 - Each player takes turn shoot at themselves by using `/shoot`, but instead of the normal Russian Roulette (your chances of death resets to `1` in `6` because you roll the shooting wheel after your turn), you don't roll the shooting wheel and pass the gun to the other player
 
 - Whoever is left surviving wins
+
+# How to host the bot
+In case if you wanted to host the bot, here is how you can do it:
+
+1. Install Python `3.11` and all of the following in `requirements.txt`
+
+2. Clone this repository and add the following files/folders:
+
+   - `joined_game.json`
+  
+   - `waiting_games.json`
+  
+   - `game_data/solo/russian_roulette.json`
+  
+   - `game_data/solo/salesman.json`
+  
+   - `.env`
+
+   Each `.json` file should be initialized with `{}`
+
+3. Initialize the `.env` file with the following variables:
+
+   - `DISCORD_TOKEN`: Your Discord bot's token
+  
+   - `GENERAL_ID`: The channel ID for `#general`
+
+4. Host the bot
