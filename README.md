@@ -31,7 +31,7 @@ How to play:
 - Whoever is left surviving wins
 
 # Russian Roulette (Singleplayer) game mode
-This game mode will be started if you ran `/single russian roulette`. The rules are as like normal Russian Roulette, but you play with the bot.
+This game mode will be started if you run `/single russian roulette`. The rules are as like normal Russian Roulette, but you play with the bot.
 
 # How to host the bot
 In case if you wanted to host the bot, here is how you can do it:
