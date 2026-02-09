@@ -107,6 +107,21 @@ def on_leave(user_id):
             winner = bot.get_user(int(p1_id))
             return f"{winner.mention} won by resignation!"
     
+    with open("game_data/single/russian_roulette.json", "r") as file:
+        russian_roulette_single = json.load(file)
+    
+    if user_id in russian_roulette_single:
+        del joined_game[user_id]
+        del russian_roulette_single[user_id]
+        
+        with open("joined_game.json", "w") as file:
+            json.dump(joined_game, file)
+            
+        with open("game_data/single/russian_roulette.json", "w") as file:
+            json.dump(russian_roulette_single, file)
+        
+        return "The bot won by resignation!"
+    
     return "I think someone hacked into the system..."
         
 @bot.event
@@ -196,7 +211,7 @@ async def single(ctx, *, game_name: str):
         case "russian roulette":
             # Stpre the data of if the player joined a game, which will always store as True
             turn = randint(0, 1)
-            await ctx.send(f"{user.mention}, you've successfully joined a singleplayer game with the bot in game mode {game_name}. It's currently {"your" if turn == 0 else "the bot's"} turn")
+            await ctx.send(f"{user.mention}, you've successfully joined a singleplayer game with the bot in game mode {game_name}. It's currently {"your" if turn == 0 else "the bot's"} turn{". Use /shoot to perform your turn" if turn == 0 else ""}")
             if turn == 1:
                 if randint(1, 6) == 1:
                     await ctx.send(f"{user.mention}, the bot shot itself in its head. YOU WIN!")
