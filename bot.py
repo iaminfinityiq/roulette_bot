@@ -27,6 +27,9 @@ def reset():
     
     with open("game_data/solo/salesman.json", "w") as file:
         json.dump({}, file)
+    
+    with open("game_data/single/russian_roulette.json", "w") as file:
+        json.dump({}, file)
 
 def on_leave(user_id):
     user = bot.get_user(int(user_id))
@@ -172,6 +175,47 @@ async def solo(ctx, *, game_name: str = ""):
         json.dump(waiting_games, file)
 
     await ctx.send(f"{user.mention}, you're currently waiting with the game mode {game_name}. Please be patient and wait for someone to accept your duel!")
+
+@bot.command()
+async def single(ctx, *, game_name: str):
+    user = ctx.author
+    user_id = str(user.id)
+    
+    with open("joined_game.json", "r") as file:
+        joined_game = json.load(file)
+    
+    if user_id in joined_game and joined_game[user_id]:
+        await ctx.send(f"{user.mention}, you are already in a game, or waiting for another game. Please leave the game if you wanted to start a new game")
+        return
+    
+    joined_game[user_id] = True
+    match game_name.strip().lower():
+        case "":
+            await ctx.send(f"{user.mention}, it looks like you didn't choose a game mode at all. Please choose a game mode...")
+            return
+        case "russian roulette":
+            # Stpre the data of if the player joined a game, which will always store as True
+            turn = randint(0, 1)
+            await ctx.send(f"{user.mention}, you've successfully joined a singleplayer game with the bot in game mode {game_name}. It's currently {"your" if turn == 0 else "the bot's"} turn")
+            if turn == 1:
+                if randint(1, 6) == 1:
+                    await ctx.send(f"{user.mention}, the bot shot itself in its head. YOU WIN!")
+                    return
+                else:
+                    await ctx.send(f"{user.mention}, the bot shot itself and hit a blank. It's currently your turn. Use /shoot to perform your turn")
+                    
+            with open("game_data/single/russian_roulette.json", "r") as file:
+                russian_roulette_single = json.load(file)
+            
+            russian_roulette_single[user_id] = True
+            with open("game_data/single/russian_roulette.json", "w") as file:
+                json.dump(russian_roulette_single, file)
+                
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+        case _:
+            await ctx.send(f"{user.mention}, game mode {game_name} does not exist in me...")
+            return
     
 @bot.command()
 async def leave(ctx):
@@ -271,7 +315,7 @@ async def join(ctx, player: discord.Member):
             
             await ctx.send(f"{player.mention}, {user.mention} managed to join your game! In this game, {salesman.mention} is the Salesman and {gihun.mention} is Gi-hun. It's currently Gi-hun's ({gihun.mention}'s) turn. Use /shoot to perform your turn! There are **6** chambers left to shoot...")
         case _:
-            await ctx.send(f"{user.mention}, you can't join \\{player.mention}'s game as it does not exist")
+            await ctx.send(f"{user.mention}, you can't join the selected person's game as it does not exist")
 
 @bot.command()
 async def shoot(ctx):
@@ -400,6 +444,51 @@ async def shoot(ctx):
         with open("game_data/solo/salesman.json", "w") as file:
             json.dump(salesman_solo, file)
             
+        return
+    
+    # Step 5: Check if a player is in a Russian Roulette (Single) game
+    with open("game_data/single/russian_roulette.json", "r") as file:
+        russian_roulette_single = json.load(file)
+    
+    if user_id in russian_roulette_single:
+        # Step 6: Perform your turn
+        if randint(1, 6) == 1:
+            await ctx.send(f"{user.mention}, you shot yourself in the head and died... THE BOT WINS!")
+            
+            # Step 7: Remove the JSON data
+            with open("joined_game.json", "r") as file:
+                joined_game = json.load(file)
+            
+            del joined_game[user_id]
+            del russian_roulette_single[user_id]
+            with open("game_data/single/russian_roulette.json", "w") as file:
+                json.dump(russian_roulette_single, file)
+            
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+            
+            return
+        
+        # Step 7: Perform bot's turn
+        if randint(1, 6) == 1:
+            await ctx.send(f"{user.mention}, you didn't die, and the bot shot itself in its head. YOU WIN!")
+            
+            # Step 8: Remove the JSON data
+            with open("joined_game.json", "r") as file:
+                joined_game = json.load(file)
+            
+            del joined_game[user_id]
+            del russian_roulette_single[user_id]
+            with open("game_data/single/russian_roulette.json", "w") as file:
+                json.dump(russian_roulette_single, file)
+            
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+                
+            return
+        else:
+            await ctx.send(f"{user.mention}, you didn't die, and the bot shot itself and hit a blank. It's currently your turn. Use /shoot to perform your turn")
+        
         return
     
     await ctx.send(f"{user.mention}, you are not in a game where you can use /shoot, therefore, you can't use this command")
