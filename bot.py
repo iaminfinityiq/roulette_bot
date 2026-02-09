@@ -28,6 +28,84 @@ def reset():
     with open("game_data/solo/salesman.json", "w") as file:
         json.dump({}, file)
 
+def on_leave(user_id):
+    user = bot.get_user(int(user_id))
+    with open("joined_game.json", "r") as file:
+        joined_game = json.load(file)
+    
+    if user_id not in joined_game or not joined_game[user_id]:
+        return f"{user.mention}, you're not in a game or waiting for a game right now!"
+    
+    with open("waiting_games.json", "r") as file:
+        waiting_games = json.load(file)
+
+    if user_id in waiting_games:
+        del joined_game[user_id]
+        del waiting_games[user_id]
+        with open("joined_game.json", "w") as file:
+            json.dump(joined_game, file)
+
+        with open("waiting_games.json", "w") as file:
+            json.dump(waiting_games, file)
+
+        return f"{user.mention}, you've successfully left the game"
+    
+    with open("game_data/solo/russian_roulette.json", "r") as file:
+        russian_roulette_solo = json.load(file)
+    
+    if user_id in russian_roulette_solo:
+        game_data = russian_roulette_solo[user_id]
+        p1_id = game_data[1]
+        p2_id = game_data[2]
+        
+        del joined_game[p1_id]
+        del joined_game[p2_id]
+        
+        del russian_roulette_solo[p1_id]
+        del russian_roulette_solo[p2_id]
+        
+        with open("joined_game.json", "w") as file:
+            json.dump(joined_game, file)
+        
+        with open("game_data/solo/russian_roulette.json", "w") as file:
+            json.dump(russian_roulette_solo, file)
+            
+        if p1_id == user_id:
+            winner = bot.get_user(int(p2_id))
+            return f"{winner.mention} won by resignation!"
+        else:
+            winner = bot.get_user(int(p1_id))
+            return f"{winner.mention} won by resignation!"
+    
+    with open("game_data/solo/salesman.json", "r") as file:
+    	salesman_solo = json.load(file)
+    
+    if user_id in salesman_solo:
+        game_data = salesman_solo[user_id]
+        p1_id = game_data[1]
+        p2_id = game_data[2]
+        
+        del joined_game[p1_id]
+        del joined_game[p2_id]
+        
+        del salesman_solo[p1_id]
+        del salesman_solo[p2_id]
+        
+        with open("joined_game.json", "w") as file:
+            json.dump(joined_game, file)
+        
+        with open("game_data/solo/salesman.json", "w") as file:
+            json.dump(salesman_solo, file)
+            
+        if p1_id == user_id:
+            winner = bot.get_user(int(p2_id))
+            return f"{winner.mention} won by resignation!"
+        else:
+            winner = bot.get_user(int(p1_id))
+            return f"{winner.mention} won by resignation!"
+    
+    return "I think someone hacked into the system..."
+        
 @bot.event
 async def on_ready():
     global general
@@ -40,6 +118,13 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     await general.send(f"Greetings, {member.mention}! Welcome to Roulette Games, this is a server where we have roulette games hosted by the bot myself")
+
+@bot.event
+async def on_member_remove(member):
+    user_id = str(member.id)
+    msg = on_leave(user_id)
+    
+    await ctx.send(msg)
 
 @bot.event
 async def on_message(message):
@@ -90,90 +175,11 @@ async def solo(ctx, *, game_name: str = ""):
     
 @bot.command()
 async def leave(ctx):
-    with open("joined_game.json", "r") as file:
-        joined_game = json.load(file)
-    
     user = ctx.author
     user_id = str(user.id)
+    msg = on_leave(user_id)
     
-    if user_id not in joined_game or not joined_game[user_id]:
-        await ctx.send(f"{user.mention}, you're not in a game or waiting for a game right now!")
-        return
-    
-    with open("waiting_games.json", "r") as file:
-        waiting_games = json.load(file)
-
-    if user_id in waiting_games:
-        del joined_game[user_id]
-        del waiting_games[user_id]
-        with open("joined_game.json", "w") as file:
-            json.dump(joined_game, file)
-
-        with open("waiting_games.json", "w") as file:
-            json.dump(waiting_games, file)
-
-        await ctx.send(f"{user.mention}, you've successfully left the game")
-        return
-    
-    with open("game_data/solo/russian_roulette.json", "r") as file:
-        russian_roulette_solo = json.load(file)
-    
-    if user_id in russian_roulette_solo:
-        game_data = russian_roulette_solo[user_id]
-        p1_id = game_data[1]
-        p2_id = game_data[2]
-        
-        if p1_id == user_id:
-            winner = bot.get_user(int(p2_id))
-            await ctx.send(f"{winner.mention} won by resignation!")
-        else:
-            winner = bot.get_user(int(p1_id))
-            await ctx.send(f"{winner.mention} won by resignation!")
-        
-        del joined_game[p1_id]
-        del joined_game[p2_id]
-        
-        del russian_roulette_solo[p1_id]
-        del russian_roulette_solo[p2_id]
-        
-        with open("joined_game.json", "w") as file:
-            json.dump(joined_game, file)
-        
-        with open("game_data/solo/russian_roulette.json", "w") as file:
-            json.dump(russian_roulette_solo, file)
-            
-        return
-    
-    with open("game_data/solo/salesman.json", "r") as file:
-    	salesman_solo = json.load(file)
-    
-    if user_id in salesman_solo:
-        game_data = salesman_solo[user_id]
-        p1_id = game_data[1]
-        p2_id = game_data[2]
-        
-        if p1_id == user_id:
-            winner = bot.get_user(int(p2_id))
-            await ctx.send(f"{winner.mention} won by resignation!")
-        else:
-            winner = bot.get_user(int(p1_id))
-            await ctx.send(f"{winner.mention} won by resignation!")
-        
-        del joined_game[p1_id]
-        del joined_game[p2_id]
-        
-        del salesman_solo[p1_id]
-        del salesman_solo[p2_id]
-        
-        with open("joined_game.json", "w") as file:
-            json.dump(joined_game, file)
-        
-        with open("game_data/solo/salesman.json", "w") as file:
-            json.dump(salesman_solo, file)
-        
-        return
-    
-    await ctx.send("I think someone hacked into the system...")
+    await ctx.send(msg)
 
 @bot.command()
 async def join(ctx, player: discord.Member):
