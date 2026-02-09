@@ -36,7 +36,7 @@ This game mode will be started if you ran `/single russian roulette`. The rules 
 # How to host the bot
 In case if you wanted to host the bot, here is how you can do it:
 
-1. Install Python `3.11` or above and all of the following in `requirements.txt`
+1. Install Python `3.12` or above and all of the following in `requirements.txt`
 
 2. Clone this repository and add the following files/folders:
 
