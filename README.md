@@ -4,6 +4,8 @@ A bot that has roulette games
 # How to use the bot
 Use `/solo <game mode>` if you want to host a game (2 players). This command has 2 modes: Russian Roulette and Salesman
 
+Use `/single <game mode>` if you want to host a singleplayer game. This command has 1 mode: Russian Roulette
+
 Use `/join <ping the user>` if you want to join a game that the pinged user is in
 
 Use `/leave` if you want to leave a game at any time
@@ -27,6 +29,9 @@ How to play:
 - Each player takes turn shoot at themselves by using `/shoot`, but instead of the normal Russian Roulette (your chances of death resets to `1` in `6` because you roll the shooting wheel after your turn), you don't roll the shooting wheel and pass the gun to the other player
 
 - Whoever is left surviving wins
+
+# Russian Roulette (Singleplayer) game mode
+This game mode will be started if you ran `/single russian roulette`. The rules are as like normal Russian Roulette, but you play with the bot.
 
 # How to host the bot
 In case if you wanted to host the bot, here is how you can do it:
