@@ -16,7 +16,7 @@ How to play:
 - On your turn, use `/shoot`. You will have a `1` in `6` chance to lose. This is how Russian Roulette works
 
 # Salesman game mode
-This game mode will be started if 2 players successfully joined the game (aka one user use `/join` on aother user that used `/solo salesman`)
+This game mode will be started if 2 players successfully joined the game (aka one user use `/join` on another user that used `/solo salesman`)
 
 How to play:
 
@@ -31,7 +31,7 @@ How to play:
 # How to host the bot
 In case if you wanted to host the bot, here is how you can do it:
 
-1. Install Python `3.11` and all of the following in `requirements.txt`
+1. Install Python `3.11` or above and all of the following in `requirements.txt`
 
 2. Clone this repository and add the following files/folders:
 
