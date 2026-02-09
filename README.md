@@ -47,6 +47,8 @@ In case if you wanted to host the bot, here is how you can do it:
    - `game_data/solo/russian_roulette.json`
   
    - `game_data/solo/salesman.json`
+
+   - `game_data/single/russian_roulette.json`
   
    - `.env`
 
