@@ -30,6 +30,9 @@ def reset():
     
     with open("game_data/single/russian_roulette.json", "w") as file:
         json.dump({}, file)
+    
+    with open("game_data/single/salesman.json", "w") as file:
+        json.dump({}, file)
 
 def on_leave(user_id):
     user = bot.get_user(int(user_id))
@@ -142,7 +145,7 @@ async def on_member_remove(member):
     user_id = str(member.id)
     msg = on_leave(user_id)
     
-    await ctx.send(msg)
+    await member.guild.get_channel(general_id).send(msg)
 
 @bot.event
 async def on_message(message):
@@ -203,13 +206,12 @@ async def single(ctx, *, game_name: str):
         await ctx.send(f"{user.mention}, you are already in a game, or waiting for another game. Please leave the game if you wanted to start a new game")
         return
     
-    joined_game[user_id] = True
     match game_name.strip().lower():
         case "":
             await ctx.send(f"{user.mention}, it looks like you didn't choose a game mode at all. Please choose a game mode...")
             return
         case "russian roulette":
-            # Stpre the data of if the player joined a game, which will always store as True
+            # Store the data of if the player joined a game, which will always store as True
             turn = randint(0, 1)
             await ctx.send(f"{user.mention}, you've successfully joined a singleplayer game with the bot in game mode {game_name}. It's currently {"your" if turn == 0 else "the bot's"} turn{". Use /shoot to perform your turn" if turn == 0 else ""}")
             if turn == 1:
@@ -225,9 +227,23 @@ async def single(ctx, *, game_name: str):
             russian_roulette_single[user_id] = True
             with open("game_data/single/russian_roulette.json", "w") as file:
                 json.dump(russian_roulette_single, file)
-                
+            
+            joined_game[user_id] = True
             with open("joined_game.json", "w") as file:
                 json.dump(joined_game, file)
+        case "salesman":
+            with open("game_data/single/salesman.json", "r") as file:
+                salesman_single = json.load(file)
+            
+            salesman_single[user_id] = 6
+            with open("game_data/single/salesman.json", "w") as file:
+                json.dump(salesman_single, file)
+            
+            joined_game[user_id] = True
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+                
+            await ctx.send(f"{user.mention}, you've successfully joined a singleplayer game with the bot in game mode {game_name}. In this game, the bot is the Salesman and you are Gi-hun. It's currently Gi-hun's (your) turn. Use /shoot to perform your turn! There are **6** chambers left to shoot...")
         case _:
             await ctx.send(f"{user.mention}, game mode {game_name} does not exist in me...")
             return
@@ -441,7 +457,7 @@ async def shoot(ctx):
             with open("joined_game.json", "w") as file:
                 json.dump(joined_game, file)
             
-            with open("game_data/solo/salesman", "w") as file:
+            with open("game_data/solo/salesman.json", "w") as file:
                 json.dump(salesman_solo, file)
             
             return
@@ -504,6 +520,61 @@ async def shoot(ctx):
         else:
             await ctx.send(f"{user.mention}, you didn't die, and the bot shot itself and hit a blank. It's currently your turn. Use /shoot to perform your turn")
         
+        return
+    
+    # Step 6: Check if the player is in a Salesman (Single) game
+    with open("game_data/single/salesman.json", "r") as file:
+        salesman_single = json.load(file)
+    
+    if user_id in salesman_single:
+        # Step 7: Perform dialogue if you have
+        if salesman_single[user_id] == 4:
+            await ctx.send("Salesman (bot): I've always wondered how you made it out of there alive. For one thing, you were even terrible at ddakji")
+        elif salesman_single[user_id] == 2:
+            await ctx.send("Salesman (bot): What's the matter? Is your mind starting to race? Now your odds of death are 1 in 2. That's pretty high indeed. I'm sure you're afraid. Lots going through your mind. Let me guess what you're thinking right now. \"The gun is in my hand. Screw the rules, pull the trigger once or twice, and I can blow this guy's face off\". Isn't that right? If you wanted to meet the person you mentioned earlier, the key is in my pocket. You can simply shoot me with the gun and take it. But I'll have to admit to you one thing. That you're a piece of trash, just like everyone else. A piece of trash who got lucky and made it out of the dumpster.")
+            
+        # Step 8: Perform your turn
+        if randint(1, salesman_single[user_id]) == 1:
+            await ctx.send(f"Gi-hun (you) shot himself in the head and died... THE SALESMAN WINS!")
+            
+            # Step 9: Remove the JSON data
+            del joined_game[user_id]
+            del salesman_single[user_id]
+            with open("game_data/single/salesman.json", "w") as file:
+                json.dump(salesman_single, file)
+            
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+            
+            return
+        
+        salesman_single[user_id] -= 1
+        await ctx.send(f"Luckily, Gi-hun (you), you hit a blank chamber. It's now the Salesman's (bot's) turn. There are **{salesman_single[user_id]}** chambers left.")
+        
+        # Step 9: Perform dialogue if you have
+        if salesman_single[user_id] == 1:
+            await ctx.send("Gi-hun (you): What's the matter? Is your mind starting to race? That's right. Screw the rules. Now, with a single pull of the trigger, you could kill me. But, I'll have you admit one thing. You put a mask over your face and do whatever your master says. You run, bark, and wag your tail for them. You're nothing more than their dog.")
+        
+        # Step 10: Perform bot's turn
+        if randint(1, salesman_single[user_id]) == 1:
+            await ctx.send(f"The Salesman (bot) shot himself in the head and died... GI-HUN WINS!")
+            
+            # Step 11: Remove the JSON data
+            del joined_game[user_id]
+            del salesman_single[user_id]
+            with open("game_data/single/salesman.json", "w") as file:
+                json.dump(salesman_single, file)
+            
+            with open("joined_game.json", "w") as file:
+                json.dump(joined_game, file)
+            
+            return
+        
+        salesman_single[user_id] -= 1
+        with open("game_data/single/salesman.json", "w") as file:
+            json.dump(salesman_single, file)
+        
+        await ctx.send(f"Luckily, the Salesman (bot), you hit a blank chamber. It's now Gi-hun's (your) turn. Use /shoot to perform your turn. There are **{salesman_single[user_id]}** chambers left.")
         return
     
     await ctx.send(f"{user.mention}, you are not in a game where you can use /shoot, therefore, you can't use this command")
