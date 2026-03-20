@@ -33,6 +33,9 @@ How to play:
 # Russian Roulette (Singleplayer) game mode
 This game mode will be started if you run `/single russian roulette`. The rules are as like normal Russian Roulette, but you play with the bot.
 
+# Salesman (Singleplayer) game mode
+This game mode will be started if you run `/single salesman`. The rules are as like normal Salesman, but you play with the bot. You are always Gi-hun in any case, thus you always go first.
+
 # How to host the bot
 In case if you wanted to host the bot, here is how you can do it:
 
@@ -49,15 +52,17 @@ In case if you wanted to host the bot, here is how you can do it:
    - `game_data/solo/salesman.json`
 
    - `game_data/single/russian_roulette.json`
+
+   - `game_data/single/salesman.json`
   
    - `.env`
 
    Each `.json` file should be initialized with `{}`
 
-3. Initialize the `.env` file with the following variables:
+4. Initialize the `.env` file with the following variables:
 
    - `DISCORD_TOKEN`: Your Discord bot's token
   
    - `GENERAL_ID`: The channel ID for `#general`
 
-4. Host the bot
+5. Host the bot
